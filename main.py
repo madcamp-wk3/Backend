@@ -54,15 +54,15 @@ data = [
 # Replace with your direct connection string
 MONGO_URI = "mongodb+srv://waterbang12:happy4216@cluster0.5uuwv.mongodb.net/?retryWrites=true&w=majority"
 
-# try:
-#     print("⏳ Attempting to connect to MongoDB...")
-#     client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-#     db = client["chat_database"]
-#     users_collection = db["users"]
-#     client.admin.command("ping")
-#     print("✅ MongoDB connection successful!")
-# except Exception as e:
-#     print(f"❌ MongoDB connection failed: {e}")
+try:
+    print("⏳ Attempting to connect to MongoDB...")
+    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+    db = client["chat_database"]
+    users_collection = db["users"]
+    client.admin.command("ping")
+    print("✅ MongoDB connection successful!")
+except Exception as e:
+    print(f"❌ MongoDB connection failed: {e}")
 
 def get_database():
     try:
@@ -79,7 +79,6 @@ def read_root():
     return {"message": "FastAPI is running!"}
 
 
-"""
 @app.post("/users", status_code=201)
 def create_user(user: User):
     existing = users_collection.find_one({"email": user.email})
@@ -93,18 +92,14 @@ def get_users():
     users = list(users_collection.find({}, {"_id": 0}))
     return {"users": users}
 
-@app.get("/news", status_code=200)
+@app.get("/news")
 def get_news():
-    db=Depends(get_database)
-    users_collection = db["usernames"]
     news_list = list(users_collection.find({}, {"_id": 0}))  # Exclude MongoDB `_id`
     return JSONResponse(content=news_list, status_code=200)
 
 @app.post("/news", status_code=201)
 def create_news():
     print("✅ MongoDB connection successful!")
-    db=Depends(get_database)
-    users_collection = db["users"]
     users_collection.insert_many(data)
     return {"message": "User created successfully"}
 
@@ -112,16 +107,11 @@ def create_news():
 @app.get("/dummy")
 def get_users():
     print("🔹 /dummy route was triggered!")
-    db=Depends(get_database)
-    users_collection=db["users"]
     inserted_ids = users_collection.insert_many(data).inserted_ids
     
     return {"message": "News created successfully", "inserted_ids": [str(i) for i in inserted_ids]}
 
-"""
-
-
-#------------Login ---------------#
+#------------Member ---------------#
 class LoginModel(BaseModel):
     username:str
     password:str
@@ -166,8 +156,6 @@ def signIn(user : LoginModel,db=Depends(get_database)):
         raise HTTPException(status_code=500, detail="Failed to insert user")
     
     return {"message": "User inserted successfully", "user_id": str(result.inserted_id)}
-
-
 
 
 # 구글 로그인 
